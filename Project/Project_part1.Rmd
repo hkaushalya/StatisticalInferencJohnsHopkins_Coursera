@@ -1,0 +1,50 @@
+---
+title: "Simulation of Exponential Distribution"
+author: "Sam Hewamanage"
+date: "August 4, 2014"
+output:
+  pdf_document: default
+  html_document:
+    theme: cerulean
+---
+
+The exponential distribution can be simulated in R with rexp(nosim, lambda) where lambda is the rate parameter. The mean of exponential distribution is 1/lambda and the standard deviation is also also 1/lambda. Set lambda = 0.2 for all of the simulations. In this simulation, you will investigate the distribution of averages of 40 exponential(0.2)s.
+
+Illustrate via simulation and associated explanatory text the properties of the distribution of the mean of 40 exponential(0.2)s.  You should
+
+
+1. **Show where the distribution is centered at and compare it to the theoretical center of the distribution.**
+
+```{r, echo=T}
+set.seed(1234)
+lambda <- 0.2
+x <- rexp(40, lambda)
+hist(x, probability=T, main="Histogram of x (~ Exponential)")
+theory.mean <- 1.0/lambda
+exp.mean <- mean(x)
+print ( cat('Experimental Mean =', exp.mean, ' compared to the theoretical mean, 1/lambda= ', theory.mean, '\n'))
+```
+Experimental values is quite close to the theoretical values. A very good approximation.
+
+
+2. **Show how variable it is and compare it to the theoretical variance of the distribution.**
+
+```{r, echo=T}
+theory.var <- 1.0/lambda^2
+exp.var <- var(x)
+print ( cat('Experimental Variance =', exp.var, ' compared to the theoretical Variance, 1/lambda = ', theory.var, "\n"))
+```
+Experimental values is quite close to the theoretical values. A very good approximation.
+
+
+3. **Show that the distribution is approximately normal.**
+
+```{r, echo=T}
+qqnorm(x) 
+qqline(x)
+```
+
+As we can see the data (dots) approximately follows the line. If the data is normally distibuted they would lie entirely along the line.
+
+
+4. **Evaluate the coverage of the confidence interval for $1/\lambda: \bar{X} \pm 1.96\frac{S}{\sqrt{n}}$.**

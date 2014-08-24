@@ -1,0 +1,99 @@
+---
+title: "Guinea Pigs Tooth Growth Data Analysis"
+author: "Sam Hewamanage"
+date: "August 4, 2014"
+output: pdf_document
+---
+
+## Problem
+Now in the second portion of the class, we're going to analyze the ToothGrowth data in the R datasets package.
+
+1. Load the ToothGrowth data and perform some basic exploratory data analyses 
+2. Provide a basic summary of the data.
+3. Use confidence intervals and hypothesis tests to compare tooth growth by supp and dose. (Use the techniques from class even if there's other approaches worth considering)
+4. State your conclusions and the assumptions needed for your conclusions. 
+
+## Analysis
+### Observations:
+* No missing values. 
+* Two independent variables, dose and suppliment are factors with 3 and 2 different treatment levels, totalling 6 different treatment conditions.
+* One continuous dependent variables, len.
+
+
+```{r}
+rm(list=ls())
+set.seed(1234)
+data(ToothGrowth)
+str(ToothGrowth)
+summary(ToothGrowth)
+head(ToothGrowth)
+```
+
+###Observations:
+There is dependence of tooth legth (len) on dose and suppliment type. The width of len distribution gets smaller with the dose (approximately).
+
+Observation | OJ | VC
+------------| -- | --
+shape | left skewed | more symmetric
+correlation | strong | weak
+spread | narrow | much broader | 
+
+```{r}
+library(ggplot2)
+p <- ggplot(data=ToothGrowth)
+
+boxplot(len ~ dose, data=ToothGrowth)
+title("Effect of 'dose' on 'Tooth Growth'")
+boxplot(len ~ supp, data=ToothGrowth)
+title("Effect of 'suppliment type' on 'Tooth Growth'")
+```
+
+### Compare the additive model with interaction model and a model with both.
+
+With the factors the additive explains ~70% of the variance. The interaction model itself show ~72% correction which is slightly higher than the additive model. 
+
+### Addtive Model (1)
+```{r}
+lm.form.1 = formula('len ~ dose + supp')
+lm.form.1
+#oj.df <- subset(ToothGrowth, supp=='OJ')
+#lm.model.1 <- lm(lm.form.1, data=oj.df)
+lm.model.1 <- lm(lm.form.1, data=ToothGrowth)
+summary(lm.model.1)
+confint(lm.model.1)
+
+```
+
+### Interaction Model (2)
+```{r}
+lm.form.2 = formula('len ~ dose * supp')
+lm.form.2
+lm.model.2 <- lm(lm.form.2, data=ToothGrowth)
+summary(lm.model.2)
+confint(lm.model.2)
+
+```
+
+Compare the two models
+```{r}
+anova(lm.model.1, lm.model.2)
+```
+
+The interaction term is significant and hence this model does better than previous model in explaining the variance.
+
+
+### Conclusions
+Both dependent variables are significant in describing the dependent variable, len. The interaction model seems to be a slightly better than additive model of the same variables as it seems to decribes the variance a tad more. Both models' p-values are signficant and hence we reject null hypothesis in favor of the alternate, `the variable are correlated'. Futher more there is indication that the interaction between dependent variables is significant as evident by the higher adjusted R-squared in the interaction model.
+
+In conclusion, there is evidence that that dosage of vitamin C and the intake form have positive effect on the Guinea pigs' tooth growth. 
+
+### Assumptions:
+
+1. The errors/residuals are normally distributed and iid. Looking the Q-Q plots below we can see the condition is approximately holds.
+
+```{r}
+qqnorm(resid(lm.model.1), ylab="Residuals (Additive Model)")
+qqline(resid(lm.model.1), col=2)
+qqnorm(resid(lm.model.2), ylab="Residuals (Interaction Model)")
+qqline(resid(lm.model.1), col=2)
+```
